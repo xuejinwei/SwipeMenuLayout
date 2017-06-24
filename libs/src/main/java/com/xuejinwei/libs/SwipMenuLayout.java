@@ -105,6 +105,8 @@ public class SwipMenuLayout extends ViewGroup {
             // 初始化左右边界值
             leftBorder = getChildAt(0).getLeft();
             rightBorder = getChildAt(getChildCount() - 1).getRight();
+            Log.i(TAG, "rightBorder-----:" + rightBorder);
+            Log.i(TAG, "leftBorder-----:" + leftBorder);
         }
     }
 
@@ -114,11 +116,12 @@ public class SwipMenuLayout extends ViewGroup {
             case MotionEvent.ACTION_DOWN:
                 // 首次按下，记录相关点击的位置
                 mXDown = ev.getRawX();
-                mXLastMove = mXDown;
+                mXLastMove = ev.getRawX();
                 break;
             case MotionEvent.ACTION_MOVE:
+                // 滑动，记录相关滑动的位置
                 mXMove = ev.getRawX();
-                mXLastMove = mXMove;
+                mXLastMove = ev.getRawX();
                 float diff = Math.abs(mXMove - mXDown);
                 // 当手指拖动值大于TouchSlop值时，认为应该进行滚动，拦截子控件的事件
                 if (diff > mTouchSlop) {
@@ -137,7 +140,6 @@ public class SwipMenuLayout extends ViewGroup {
             case MotionEvent.ACTION_MOVE:
                 mXMove = event.getRawX();
                 int scrolledX = (int) (mXLastMove - mXMove);
-                Log.i(TAG, "getScrollX-----:" + getScrollX() + ";" + "scrolledX-----:" + scrolledX + ";" + "getWidth-----" + getWidth() + "");
                 if (getScrollX() + scrolledX < leftBorder) {
                     scrollTo(leftBorder, 0);
                     return true;
@@ -145,11 +147,20 @@ public class SwipMenuLayout extends ViewGroup {
                     scrollTo(rightBorder - getWidth(), 0);
                     return true;
                 }
+                Log.i(TAG + "-MOVE", "getScrollX--:" + getScrollX() + ";" + "mXMove--" + mXMove + ";" + "mXLastMove--:" + mXLastMove + ";" + "mXDown" + mXDown);
                 scrollBy(scrolledX, 0);
                 mXLastMove = mXMove;
                 break;
             case MotionEvent.ACTION_UP:
-
+                mXMove = event.getRawX();
+                // 调用startScroll()进行平滑过渡
+                if (mXMove - mXDown < 0) {// 左滑
+                    mScroller.startScroll(getScrollX(), 0, rightBorder - getWidth() - getScrollX(), 0);
+                } else if (mXMove - mXDown > 0) {// 右滑
+                    mScroller.startScroll(getScrollX(), 0, -getScrollX(), 0);
+                }
+                invalidate();
+                Log.i(TAG + "-UP", "getScrollX--:" + getScrollX() + ";" + "mXMove--" + mXMove + ";" + "mXLastMove--:" + mXLastMove + ";" + "mXDown" + mXDown);
                 break;
         }
         return super.onTouchEvent(event);
@@ -157,7 +168,7 @@ public class SwipMenuLayout extends ViewGroup {
 
     @Override
     public void computeScroll() {
-        // 第三步，重写computeScroll()方法，并在其内部完成平滑滚动的逻辑
+        // 重写computeScroll()方法，并在其内部完成平滑滚动的逻辑
         if (mScroller.computeScrollOffset()) {
             scrollTo(mScroller.getCurrX(), mScroller.getCurrY());
             invalidate();

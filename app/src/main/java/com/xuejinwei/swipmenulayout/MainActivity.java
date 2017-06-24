@@ -15,7 +15,6 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.tv_content) TextView mTvContent;
     @BindView(R.id.tv_delete)  TextView mTvDelete;
     @BindView(R.id.tv_top)     TextView mTvTop;
-    @BindView(R.id.tv_top)     TextView mTvTopfdf;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
