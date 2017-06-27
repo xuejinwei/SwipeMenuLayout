@@ -6,10 +6,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.xuejinwei.swipmenulayout.MainActivity">
+    tools:context="com.xuejinwei.swipemenulayout.MainActivity">
 
 
-    <com.xuejinwei.libs.SwipMenuLayout
+    <com.xuejinwei.libs.SwipeMenuLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
@@ -46,5 +46,5 @@
             android:text="置顶"
             android:textColor="#ffffff"
             android:textSize="20sp"/>
-    </com.xuejinwei.libs.SwipMenuLayout>
+    </com.xuejinwei.libs.SwipeMenuLayout>
 </LinearLayout>

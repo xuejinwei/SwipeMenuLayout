@@ -1,4 +1,4 @@
-package com.xuejinwei.swipmenulayout;
+package com.xuejinwei.swipemenulayout;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;

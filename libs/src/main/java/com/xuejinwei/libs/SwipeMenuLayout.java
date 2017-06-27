@@ -15,7 +15,7 @@ import android.widget.Scroller;
  * 自己写的侧滑带menu 的viewgroup
  */
 
-public class SwipMenuLayout extends ViewGroup {
+public class SwipeMenuLayout extends ViewGroup {
 
     private static String TAG = "SwipMenuLayout";
 
@@ -54,15 +54,15 @@ public class SwipMenuLayout extends ViewGroup {
      */
     private int rightBorder;
 
-    public SwipMenuLayout(Context context) {
+    public SwipeMenuLayout(Context context) {
         this(context, null);
     }
 
-    public SwipMenuLayout(Context context, AttributeSet attrs) {
+    public SwipeMenuLayout(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public SwipMenuLayout(Context context, AttributeSet attrs, int defStyleAttr) {
+    public SwipeMenuLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
         mScroller = new Scroller(context);
