@@ -13,46 +13,25 @@ import android.widget.Scroller;
  * Created by xuejinwei on 2017/6/24.
  * Email:xuejinwei@outlook.com
  * 自己写的侧滑带menu 的viewgroup
+ * 第一个子Item设为永远为percent的宽度，即作为主view
  */
 
 public class SwipeMenuLayout extends ViewGroup {
 
     private static String TAG = "SwipMenuLayout";
 
-    /**
-     * 用于完成滚动操作的实例
-     */
-    private Scroller mScroller;
+    private Scroller mScroller;// 用于完成平滑滚动过度的操作的实例
 
-    /**
-     * 判定为拖动的最小移动像素数
-     */
-    private int mTouchSlop;
+    private int mTouchSlop;// 判定为拖动的最小移动像素数
 
-    /**
-     * 手机按下时的屏幕坐标
-     */
-    private float mXDown;
+    private float mXDown;// 手指首次按下时的屏幕坐标
+    private float mXMove;// 手move时所处的屏幕坐标
+    private float mXLastMove;// 上次触发ACTION_MOVE事件时的屏幕坐标
 
-    /**
-     * 手move时所处的屏幕坐标
-     */
-    private float mXMove;
+    private int leftBorder;// 界面滚动区域的左边界
+    private int rightBorder;// 界面滚动区域的右边界
 
-    /**
-     * 上次触发ACTION_MOVE事件时的屏幕坐标
-     */
-    private float mXLastMove;
-
-    /**
-     * 界面可滚动的左边界
-     */
-    private int leftBorder;
-
-    /**
-     * 界面可滚动的右边界
-     */
-    private int rightBorder;
+    private boolean isUserSwiped;// 根据手指起落点，判断是不是滑动事件
 
     public SwipeMenuLayout(Context context) {
         this(context, null);
@@ -141,10 +120,10 @@ public class SwipeMenuLayout extends ViewGroup {
                 mXMove = event.getRawX();
                 int scrolledX = (int) (mXLastMove - mXMove);
                 if (getScrollX() + scrolledX < leftBorder) {
-                    scrollTo(leftBorder, 0);
+                    quickClose();
                     return true;
                 } else if (getScrollX() + getWidth() + scrolledX > rightBorder) {
-                    scrollTo(rightBorder - getWidth(), 0);
+                    quickExpand();
                     return true;
                 }
                 Log.i(TAG + "-MOVE", "getScrollX--:" + getScrollX() + ";" + "mXMove--" + mXMove + ";" + "mXLastMove--:" + mXLastMove + ";" + "mXDown" + mXDown);
@@ -154,16 +133,46 @@ public class SwipeMenuLayout extends ViewGroup {
             case MotionEvent.ACTION_UP:
                 mXMove = event.getRawX();
                 // 调用startScroll()进行平滑过渡
-                if (mXMove - mXDown < 0) {// 左滑
-                    mScroller.startScroll(getScrollX(), 0, rightBorder - getWidth() - getScrollX(), 0);
-                } else if (mXMove - mXDown > 0) {// 右滑
-                    mScroller.startScroll(getScrollX(), 0, -getScrollX(), 0);
+                if (mXMove - mXDown < 0) {// 左滑展开
+                    smoothExpand();
+                } else if (mXMove - mXDown > 0) {// 右滑关闭
+                    smoothClose();
                 }
-                invalidate();
                 Log.i(TAG + "-UP", "getScrollX--:" + getScrollX() + ";" + "mXMove--" + mXMove + ";" + "mXLastMove--:" + mXLastMove + ";" + "mXDown" + mXDown);
                 break;
         }
         return super.onTouchEvent(event);
+    }
+
+
+    /**
+     * 平滑的展开
+     */
+    public void smoothExpand() {
+        mScroller.startScroll(getScrollX(), 0, rightBorder - getWidth() - getScrollX(), 0);
+        invalidate();
+    }
+
+    /**
+     * 平滑的关闭
+     */
+    public void smoothClose() {
+        mScroller.startScroll(getScrollX(), 0, -getScrollX(), 0);
+        invalidate();
+    }
+
+    /**
+     * 快速展开
+     */
+    public void quickExpand() {
+        scrollTo(rightBorder - getWidth(), 0);
+    }
+
+    /**
+     * 快速关闭
+     */
+    public void quickClose() {
+        scrollTo(leftBorder, 0);
     }
 
     @Override
