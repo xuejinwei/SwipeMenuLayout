@@ -32,6 +32,7 @@ public class SwipeMenuLayout extends ViewGroup {
     private int rightBorder;// 界面滚动区域的右边界
 
     private boolean isUserSwiped;// 根据手指起落点，判断是不是滑动事件
+    private boolean isStateExpand = false;// menu是否处于展开状态
 
     public SwipeMenuLayout(Context context) {
         this(context, null);
@@ -107,6 +108,12 @@ public class SwipeMenuLayout extends ViewGroup {
                     return true;
                 }
                 break;
+            case MotionEvent.ACTION_UP:
+                if (isStateExpand && ev.getX() < getWidth() - getScrollX()) {// 说明点击在滑动展开状态的content区域，拦截,
+                    smoothClose();// 平滑关闭
+                    return true;// 拦截事件
+                }
+                break;
             default:
                 break;
         }
@@ -151,6 +158,7 @@ public class SwipeMenuLayout extends ViewGroup {
     public void smoothExpand() {
         mScroller.startScroll(getScrollX(), 0, rightBorder - getWidth() - getScrollX(), 0);
         invalidate();
+        isStateExpand = true;
     }
 
     /**
@@ -159,6 +167,7 @@ public class SwipeMenuLayout extends ViewGroup {
     public void smoothClose() {
         mScroller.startScroll(getScrollX(), 0, -getScrollX(), 0);
         invalidate();
+        isStateExpand = false;
     }
 
     /**
@@ -166,6 +175,7 @@ public class SwipeMenuLayout extends ViewGroup {
      */
     public void quickExpand() {
         scrollTo(rightBorder - getWidth(), 0);
+        isStateExpand = true;
     }
 
     /**
@@ -173,6 +183,7 @@ public class SwipeMenuLayout extends ViewGroup {
      */
     public void quickClose() {
         scrollTo(leftBorder, 0);
+        isStateExpand = false;
     }
 
     @Override
