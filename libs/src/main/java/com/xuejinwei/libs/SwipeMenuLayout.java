@@ -13,7 +13,12 @@ import android.widget.Scroller;
  * Created by xuejinwei on 2017/6/24.
  * Email:xuejinwei@outlook.com
  * 自己写的侧滑带menu 的viewgroup
- * 第一个子Item设为永远为percent的宽度，即作为主view
+ * 第一个子Item永远为percent的宽度，即作为主view,其他后面的一次layout布局，为menu
+ * <p>
+ * 开发过程，详情看tag
+ * 01.通过scrollto、scrollby实现侧滑功能
+ * 02.通过Scroller实现抬手平滑过度
+ * 03.展开情况下，点击content关闭
  */
 
 public class SwipeMenuLayout extends ViewGroup {
@@ -32,7 +37,10 @@ public class SwipeMenuLayout extends ViewGroup {
     private int rightBorder;// 界面滚动区域的右边界
 
     private boolean isUserSwiped;// 根据手指起落点，判断是不是滑动事件
-    private boolean isStateExpand = false;// menu是否处于展开状态
+    private boolean isStateExpand;// menu是否处于展开状态
+
+    private static SwipeMenuLayout mViewCache;// 存储当前正在展开的SwipeMenuLayout
+    private        boolean         isIntercept;// 是否拦截
 
     public SwipeMenuLayout(Context context) {
         this(context, null);
@@ -94,6 +102,14 @@ public class SwipeMenuLayout extends ViewGroup {
     public boolean onInterceptTouchEvent(MotionEvent ev) {
         switch (ev.getAction()) {
             case MotionEvent.ACTION_DOWN:
+                if (mViewCache != null && ev.getX() < getWidth() - getScrollX()) {
+                    if (mViewCache != this) {
+                        mViewCache.smoothClose();// 如果mViewCache不是自身，则平滑关闭，且 mViewCache 设为null
+                    }
+                    //只要有一个侧滑菜单处于打开状态， 就不给外层布局上下滑动了
+                    getParent().requestDisallowInterceptTouchEvent(true);
+                    isIntercept = true;
+                }
                 // 首次按下，记录相关点击的位置
                 mXDown = ev.getRawX();
                 mXLastMove = ev.getRawX();
@@ -105,11 +121,13 @@ public class SwipeMenuLayout extends ViewGroup {
                 float diff = Math.abs(mXMove - mXDown);
                 // 当手指拖动值大于TouchSlop值时，认为应该进行滚动，拦截子控件的事件
                 if (diff > mTouchSlop) {
+                    getParent().requestDisallowInterceptTouchEvent(true);// 为了在水平滑动中禁止父类ListView等再竖直滑动
                     return true;
                 }
                 break;
             case MotionEvent.ACTION_UP:
-                if (isStateExpand && ev.getX() < getWidth() - getScrollX()) {// 说明点击在滑动展开状态的content区域，拦截,
+                if (isIntercept || isStateExpand && ev.getX() < getWidth() - getScrollX()) {// 说明点击在滑动展开状态的content区域，拦截,
+                    isIntercept = false;
                     smoothClose();// 平滑关闭
                     return true;// 拦截事件
                 }
@@ -126,10 +144,10 @@ public class SwipeMenuLayout extends ViewGroup {
             case MotionEvent.ACTION_MOVE:
                 mXMove = event.getRawX();
                 int scrolledX = (int) (mXLastMove - mXMove);
-                if (getScrollX() + scrolledX < leftBorder) {
+                if (getScrollX() + scrolledX < leftBorder) {//越左界修正
                     quickClose();
                     return true;
-                } else if (getScrollX() + getWidth() + scrolledX > rightBorder) {
+                } else if (getScrollX() + getWidth() + scrolledX > rightBorder) {//越右界修正
                     quickExpand();
                     return true;
                 }
@@ -156,6 +174,7 @@ public class SwipeMenuLayout extends ViewGroup {
      * 平滑的展开
      */
     public void smoothExpand() {
+        mViewCache = this;
         mScroller.startScroll(getScrollX(), 0, rightBorder - getWidth() - getScrollX(), 0);
         invalidate();
         isStateExpand = true;
@@ -165,6 +184,7 @@ public class SwipeMenuLayout extends ViewGroup {
      * 平滑的关闭
      */
     public void smoothClose() {
+        mViewCache = null;
         mScroller.startScroll(getScrollX(), 0, -getScrollX(), 0);
         invalidate();
         isStateExpand = false;
@@ -184,6 +204,19 @@ public class SwipeMenuLayout extends ViewGroup {
     public void quickClose() {
         scrollTo(leftBorder, 0);
         isStateExpand = false;
+    }
+
+    /**
+     * 每次ViewDetach的时候，判断一下 ViewCache是不是自己，如果是自己，关闭侧滑菜单，且ViewCache设置为null，
+     * 1 防止内存泄漏(ViewCache是一个静态变量)
+     * 2 侧滑删除后自己后，这个View被Recycler回收，复用，下一个进入屏幕的View的状态应该是普通状态，而不是展开状态。
+     */
+    @Override
+    protected void onDetachedFromWindow() {
+        if (this == mViewCache) {
+            mViewCache.smoothClose();
+        }
+        super.onDetachedFromWindow();
     }
 
     @Override

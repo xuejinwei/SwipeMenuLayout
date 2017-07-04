@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.Toast;
 
 import com.xuejinwei.libs.SwipeMenuLayout;
 import com.xuejinwei.swipemenulayout.adapter.CommonRVAdapter;
@@ -43,8 +44,15 @@ public class RecyclerViewActivity extends AppCompatActivity {
 
         mCommonRVAdapter = new CommonRVAdapter<String>(this, R.layout.item_rv_list, mStringList) {
             @Override
-            public void convert(CommonViewHolder gViewHolder, String s) {
+            public void convert(CommonViewHolder gViewHolder, final String s) {
                 gViewHolder.setText(R.id.tv_item, s);
+
+                gViewHolder.getView(R.id.tv_item).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Toast.makeText(RecyclerViewActivity.this, s, Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
 
             @Override

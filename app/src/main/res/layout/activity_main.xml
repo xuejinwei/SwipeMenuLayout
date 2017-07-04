@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
-    android:id="@+id/activity_main"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -31,7 +31,7 @@
             android:id="@+id/tv_delete"
             android:layout_width="100dp"
             android:layout_height="100dp"
-            android:background="#ff0000"
+            android:background="@color/colorDelete"
             android:gravity="center"
             android:text="删除"
             android:textColor="#ffffff"
@@ -41,7 +41,7 @@
             android:id="@+id/tv_top"
             android:layout_width="100dp"
             android:layout_height="100dp"
-            android:background="#ed4604"
+            android:background="@color/colorTop"
             android:gravity="center"
             android:text="置顶"
             android:textColor="#ffffff"
