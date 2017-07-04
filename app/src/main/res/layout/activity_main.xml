@@ -23,7 +23,7 @@
                 android:layout_height="match_parent"
                 android:background="#cccccc"
                 android:gravity="center"
-                android:text="content"
+                android:text="RecyclerView"
                 android:textSize="20sp"/>
         </LinearLayout>
 

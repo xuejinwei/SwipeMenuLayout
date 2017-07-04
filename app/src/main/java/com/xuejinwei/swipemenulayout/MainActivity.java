@@ -1,5 +1,6 @@
 package com.xuejinwei.swipemenulayout;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -28,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.tv_content:
-                Toast.makeText(MainActivity.this, "content", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(this, RecyclerViewActivity.class));
                 break;
             case R.id.tv_delete:
                 Toast.makeText(MainActivity.this, "delete", Toast.LENGTH_SHORT).show();
