@@ -127,7 +127,6 @@ public class SwipeMenuLayout extends ViewGroup {
                 break;
             case MotionEvent.ACTION_UP:
                 if (isIntercept || isStateExpand && ev.getX() < getWidth() - getScrollX()) {// 说明点击在滑动展开状态的content区域，拦截,
-                    isIntercept = false;
                     smoothClose();// 平滑关闭
                     return true;// 拦截事件
                 }
@@ -185,6 +184,7 @@ public class SwipeMenuLayout extends ViewGroup {
      */
     public void smoothClose() {
         mViewCache = null;
+        isIntercept = false;
         mScroller.startScroll(getScrollX(), 0, -getScrollX(), 0);
         invalidate();
         isStateExpand = false;
